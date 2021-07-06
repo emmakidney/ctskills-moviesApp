@@ -18,7 +18,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Header = ({ title, history }) => {
   const classes = useStyles();
-  const title = props.title
   return (
     <Paper component="div" className={classes.root}>
       <IconButton aria-label="go back" onClick={() => history.goBack()}>
