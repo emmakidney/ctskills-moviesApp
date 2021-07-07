@@ -1,12 +1,9 @@
-import React from "react";  // useState/useEffect redundant 
+import React, { useState } from "react";
 import Header from "../headerMovieList";
 import FilterCard from "../filterMoviesCard";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 import MovieList from "../movieList";
-import { useQuery } from "react-query";
-import Spinner from '../spinner';
-
 
 const useStyles = makeStyles({
   root: {
@@ -14,22 +11,25 @@ const useStyles = makeStyles({
   },
 });
 
-const TemplateMoviePage = ({ movie, children }) => {
-    const classes = useStyles();
-    const { data , error, isLoading, isError } = useQuery(
-      ["images", { id: movie.id }],
-      getMovieImages
-    );
-  
-    if (isLoading) {
-      return <Spinner />;
-    }
-  
-    if (isError) {
-      return <h1>{error.message}</h1>;
-    }
-    const images = data.posters 
-    
+function MovieListPageTemplate({ movies, title, action }) {
+  const classes = useStyles();
+  const [nameFilter, setNameFilter] = useState("");
+  const [genreFilter, setGenreFilter] = useState("0");
+  const genreId = Number(genreFilter);
+
+  let displayedMovies = movies
+    .filter((m) => {
+      return m.title.toLowerCase().search(nameFilter.toLowerCase()) !== -1;
+    })
+    .filter((m) => {
+      return genreId > 0 ? m.genre_ids.includes(genreId) : true;
+    });
+
+  const handleChange = (type, value) => {
+    if (type === "name") setNameFilter(value);
+    else setGenreFilter(value);
+  };
+
   return (
     <Grid container className={classes.root}>
       <Grid item xs={12}>
@@ -43,7 +43,7 @@ const TemplateMoviePage = ({ movie, children }) => {
             genreFilter={genreFilter}
           />
         </Grid>
-        <MovieList selectFavorite={selectFavorite} movies={displayedMovies}></MovieList>
+        <MovieList action={action} movies={displayedMovies}></MovieList>
       </Grid>
     </Grid>
   );
